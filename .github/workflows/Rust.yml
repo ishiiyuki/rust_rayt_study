@@ -13,7 +13,11 @@ jobs:
       run: cargo build --verbose
     - uses: actions/upload-artifact@v1
       with:
-        name: r_adb2_d
-        path: target/debug/r_adb2_d
+        name: rust_rayt_study
+        path: target/debug/rust_rayt_study
+    - uses: actions/upload-artifact@v2
+      with:
+        name: render
+        path: render
     - name: Run tests
       run: cargo test --verbose
