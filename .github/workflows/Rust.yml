@@ -1,0 +1,19 @@
+name: Rust
+
+on: [push]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v1
+    - name: Build
+      run: cargo build --verbose
+    - uses: actions/upload-artifact@v1
+      with:
+        name: r_adb2_d
+        path: target/debug/r_adb2_d
+    - name: Run tests
+      run: cargo test --verbose
