@@ -29,10 +29,10 @@ impl Camera {
         }
     }
 
-    pub fn ray(&self , u: f64, v: f64) -> Ray {
-        Ray{
+    pub fn ray(&self, u: f64, v: f64) -> Ray {
+        Ray {
             origin: self.origin,
-            direction: self.w * self.u + self.v * v - self.origin,
+            direction: self.w + self.u * u + self.v * v - self.origin,
         }
     }
 }
