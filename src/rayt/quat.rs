@@ -18,19 +18,19 @@ impl Quat {
     //
     pub fn from_rot_x(rad: f64) -> Self {
         let (s, c) = (rad * 0.5).sin_cos();
-        Quat(s,0.0, 0.0, c)
+        Quat::new(s,0.0, 0.0, c)
     }
 
     //
     pub fn from_rot_y(rad: f64) -> Self {
         let (s, c) = (rad * 0.5).sin_cos();
-        Quat(0.0,s, 0.0, c)
+        Quat::new(0.0,s, 0.0, c)
     }
 
     //
     pub fn from_rot_z(rad: f64) -> Self {
         let (s, c) = (rad * 0.5).sin_cos();
-        Quat(0.0, 0.0,s, c)
+        Quat::new(0.0, 0.0,s, c)
     }
 
     //
@@ -78,7 +78,7 @@ impl Quat {
     //
     pub fn rotate(&self, p: Vec3) -> Vec3 {
         let [x1,y1,z1,w1] = self.to_array();
-        let [x2,y2,z2,w2] = p.to_array();
+        let [x2,y2,z2] = p.to_array();
         let x = (w1 * x2 + y1 * z2) -(z1 * y2);
         let y = (w1 * y2 + z1 * x2) -(x1 * z2);
         let z = (w1 * z2 + x1 * y2) -(y1 * x2);
@@ -92,11 +92,11 @@ impl Quat {
     }
 
     //
-    pub fn lerp(&self , _other: Quat, _t f64) -> Self {
+    pub fn lerp(&self , _other: Quat, _t: f64) -> Self {
         todo!()
     }
 
-    pub fn slerp(&self , _other: Quat, _t f64) -> Self {
+    pub fn slerp(&self , _other: Quat, _t: f64) -> Self {
         todo!()
     }
 
@@ -107,7 +107,7 @@ impl std::ops::Mul<Quat> for Quat {
     type Output = Self;
     fn mul(self, rhs: Quat) -> Self {
         let [x1,y1,z1,w1] = self.to_array();
-        let [x2,y2,z2,w2] = p.to_array();
+        let [x2,y2,z2,w2] = rhs.to_array();
         Quat::new(
             w1 * x2 + x1 * w2 + y1 * z2 - z1 * y2,
             w1 * y2 + y2 * w2 + z1 * x2 - x1 * z2,
