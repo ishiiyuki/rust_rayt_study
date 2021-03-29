@@ -10,7 +10,7 @@ jobs:
     steps:
     - uses: actions/checkout@v1
     - name: Build
-      run: cargo build --verbose
+      run: cargo build 
     - uses: actions/upload-artifact@v1
       with:
         name: rust_rayt_study
@@ -20,4 +20,4 @@ jobs:
         name: render
         path: render.png
     - name: Run tests
-      run: cargo test --verbose
+      run: cargo test 
