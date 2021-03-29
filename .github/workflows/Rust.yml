@@ -5,19 +5,19 @@ on: [push]
 jobs:
   build:
 
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
 
     steps:
     - uses: actions/checkout@v1
     - name: Build
-      run: cargo build 
+      run: cargo build --verbose
     - uses: actions/upload-artifact@v1
       with:
         name: rust_rayt_study
-        path: target/debug/rust_rayt_study
+        path: target/debug
     - uses: actions/upload-artifact@v2
       with:
         name: render
-        path: render.png
+        path: ./render.png
     - name: Run tests
-      run: cargo test 
+      run: cargo test --verbose
