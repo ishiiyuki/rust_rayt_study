@@ -18,7 +18,10 @@ trait Shape: Sync {
     fn hit(&self, ray: &Ray, t0: f64, t1: f64) -> Option<HitInfo>;
 }
 
-
+struct Sphere {
+    center: Point3,
+    radius: f64,
+}
 
 struct SimpleScene {}
 
