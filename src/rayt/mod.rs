@@ -2,16 +2,17 @@ mod float3;
 mod quat;
 mod ray;
 mod camera;
-//mod window;
-//mod render;
+mod window;
+mod render;
 //mod onb;
 
 
-pub use self::float3::{Float3, Color, Vec3,Point3};
+pub use self::float3::{Float3, Color, Vec3, Point3};
 pub use self::quat::Quat;
 pub use self::ray::Ray;
 pub use self::camera::Camera;
-
+pub use self::window::*;
+pub use self::render::*;
 
 pub use std::sync::Arc;
 pub use std::f64::consts::PI;
