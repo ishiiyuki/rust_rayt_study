@@ -1,11 +1,11 @@
 mod rayt;
 use crate::rayt::*;
 
-
+//衝突したときの情報を格納する構造体
 struct HitInfo {
-    t: f64,
-    p: Point3,
-    n: Vec3,
+    t: f64, //光線のパラメータ
+    p: Point3, //衝突した位置
+    n: Vec3, //衝突した位置の法線
 }
 
 impl HitInfo {
@@ -14,29 +14,88 @@ impl HitInfo {
     }
 }
 
+//球体トレイト 衝突関数が共通の振る舞いである   Syncを継承する　Sync　複数のスレッドから参照されても安全であるトレイト
 trait Shape: Sync {
     fn hit(&self, ray: &Ray, t0: f64, t1: f64) -> Option<HitInfo>;
 }
 
+//球体
 struct Sphere {
     center: Point3,
     radius: f64,
 }
 
-struct SimpleScene {}
-
-impl SimpleScene {
-    fn hit_sphere(&self, center: Point3, radius: f64, ray: &Ray) -> f64 {
-        let oc = ray.origin - center;
+impl Sphere {
+    const fn new(center: Point3, radius: f64) -> Self {
+        Self { center,radius}
+    }
+}
+//shapeのトレイトメソッド
+impl Shape for Sphere {
+    fn hit(&self, ray: &Ray, t0: f64 , t1: f64) -> Option<HitInfo> {
+        let oc = ray.origin - self.center;
         let a = ray.direction.dot(ray.direction);
         let b = 2.0 * ray.direction.dot(oc);
-        let c = oc.dot(oc) - radius.powi(2);
-        let d = b * b - 4.0 * a * c;
-        if d < 0.0 {
-            -1.0
-        } else {
-            return (-b - d.sqrt()) / (2.0 * a);
+        let c = oc.dot(oc) - self.radius.powi(2);
+        let d = b * b - 4.0 * a * c ;
+        if d > 0.0 {
+            let root = d.sqrt();
+            let temp = (-b - root) / (2.0 * a);
+            if t0 < temp && temp  < t1{
+                let p = ray.at(temp);
+                return Some(HitInfo::new(temp, p, (p - self.center) / self.radius));
+            }
+            let temp = (-b + root) / (2.0 * a);
+            if t0 < temp && temp < t1 {
+                let p = ray.at(temp);
+                return Some(HitInfo::new(temp, p, (p - self.center) / self.radius));
+            }
         }
+
+        None
+    }
+}
+
+//物体リスト Box　ヒープ領域に確保　Syncのマーカートレイトを継承してるからインスタンスもSync
+//　dyn：トレイトを指定することを明示するもの
+struct ShapeList {
+    pub objects: Vec<Box<dyn Shape>>,
+}
+
+impl ShapeList {
+    pub fn new() -> Self {
+        Self { objects: Vec::new() }
+    }
+
+    pub fn push(&mut self, object: Box<dyn Shape>) {
+        self.objects.push(object)
+    }
+}
+//このインスタンスもSyncであるので　Shapeのトレイトメソッドが強制
+impl Shape for ShapeList {
+    fn hit(&self, ray: &Ray, t0: f64, t1: f64) -> Option<HitInfo> {
+        let mut hit_info: Option<HitInfo> = None;
+        let mut closet_so_far = t1;
+        for object in &self.objects {
+            if let Some(info) = object.hit(ray, t0, closet_so_far) {
+                closet_so_far = info.t;
+                hit_info = Some(info);
+            }
+        }
+        hit_info
+    }
+}
+
+struct SimpleScene {
+    world: ShapeList,
+}
+
+impl SimpleScene {
+    fn new() -> Self {
+        let mut world = ShapeList::new();
+        world.push(Box::new(Sphere::new(Point3::new(0.0,0.0, -1.0),0.5)));
+        world.push(Box::new(Sphere::new(Point3::new(0.0,-100.5, -1.0),100.0)));
+        Self { world }
     }
 
     fn background(&self, d: Vec3) -> Color {
@@ -55,17 +114,18 @@ impl Scene for SimpleScene {
     }
 
     fn trace(&self, ray: Ray) -> Color {
-        let c = Point3::new(0.0, 0.0, -1.0);
-        let t = self.hit_sphere(c, 0.5, &ray);
-        if t > 0.0 {
-            let n = (ray.at(t) - c).normalize();
-            return 0.5 * (n + Vec3::one());
+        let hit_info = self.world.hit(&ray, 0.0, f64::MAX);
+        if let Some(hit) = hit_info {
+            0.5 * (hit.n + Vec3::one())
         }
-        self.background(ray.direction)
+        else
+        {
+            self.background(ray.direction)
+        }
     }
 }
 
 
 fn main() {
-    render(SimpleScene {});
+    render(SimpleScene::new());
 }

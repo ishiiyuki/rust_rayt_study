@@ -1,6 +1,6 @@
 use minifb::{Key, KeyRepeat, Window, WindowOptions};
 use image::RgbImage;
-
+//レンダリングした画像を表示するウィンドウ　minifbを使う
 
 pub fn draw_in_window(back_filename: &str, pixels: RgbImage) -> minifb::Result<()> {
     if cfg!(test) {return Ok(()) }
