@@ -2,6 +2,7 @@ use crate::rayt::*;
 use image::{Rgb, RgbImage};
 use rayon::prelude::*;
 use std::{path::Path, fs};
+//レンダーモジュール
 
 const IMAGE_WIDTH: u32 = 200;
 const IMAGE_HEIGHT: u32 = 100;
@@ -10,7 +11,7 @@ const GAMMA_FACTOR: f64 = 2.2;
 const MAX_RAY_BOUNCE_DEPTH: usize = 50;
 const OUTPUT_FILENAME: &str = "render.png";
 const BACKUP_FILENAME: &str = "render_bak.png";
-
+//前回のパックアップを取る処理
 fn backup() {
     let output_path = Path::new(OUTPUT_FILENAME);
     if output_path.exists() {
@@ -47,7 +48,7 @@ pub trait SceneWithDepth {
     fn spp(&self) -> usize { SAMPLES_PER_PIXEL }
     fn aspect(&self) -> f64 { self.width() as f64 / self.height() as f64 }
 }
-
+//通常のレンダリング
 pub fn render(scene: impl Scene + Sync) {
     backup();
 
@@ -70,6 +71,7 @@ pub fn render(scene: impl Scene + Sync) {
     draw_in_window(BACKUP_FILENAME, img).unwrap();
 }
 
+//スーパーサンプリング （アンチエイリアス）
 pub fn render_aa(scene: impl Scene + Sync) {
     backup();
 
@@ -86,8 +88,10 @@ pub fn render_aa(scene: impl Scene + Sync) {
                 let ray = camera.ray(u, v);
                 acc + scene.trace(ray)
             });
+            //サンプリング数を使って対応　スーパーサンプリング
             pixel_color /= scene.spp() as f64;
-            // let rgb = pixel_color.to_rgb();
+            //let rgb = pixel_color.to_rgb();
+            //ガンマ
             let rgb = pixel_color.gamma(GAMMA_FACTOR).to_rgb();
             // let rgb = pixel_color.gamma(GAMMA_FACTOR).saturate().to_rgb();
             pixel[0] = rgb[0];
@@ -115,7 +119,10 @@ pub fn render_aa_with_depth(scene: impl SceneWithDepth + Sync) {
                 acc + scene.trace(ray, MAX_RAY_BOUNCE_DEPTH)
             });
             pixel_color /= scene.spp() as f64;
+            //リニア
             // let rgb = pixel_color.to_rgb();
+
+            //リニアからガンマに変換
             let rgb = pixel_color.gamma(GAMMA_FACTOR).to_rgb();
             // let rgb = pixel_color.gamma(GAMMA_FACTOR).saturate().to_rgb();
             // let rgb = nan_check(pixel_color).to_rgb();

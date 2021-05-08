@@ -113,10 +113,13 @@ impl Scene for SimpleScene {
         )
     }
 
+    //棄却法をつかって反射率50％
     fn trace(&self, ray: Ray) -> Color {
-        let hit_info = self.world.hit(&ray, 0.0, f64::MAX);
+        //計算誤差で空側がくらいのでtの区間を0.001からにしてずらす
+        let hit_info = self.world.hit(&ray, 0.001, f64::MAX);
         if let Some(hit) = hit_info {
-            0.5 * (hit.n + Vec3::one())
+            let target = hit.p + hit.n + Vec3::random_in_unit_sphere();
+            0.5 * self.trace(Ray::new(hit.p, target - hit.p))
         }
         else
         {
@@ -127,5 +130,6 @@ impl Scene for SimpleScene {
 
 
 fn main() {
-    render(SimpleScene::new());
+    //レンダリング処理はrender.rsの処理へ投げる 引数はシーンの情報を渡す
+    render_aa(SimpleScene::new());
 }

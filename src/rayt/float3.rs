@@ -171,7 +171,7 @@ impl Float3 {
     pub fn g(&self) -> u8 { (255.99 * self.0[1].min(1.0).max(0.0)) as u8 }
     pub fn b(&self) -> u8 { (255.99 * self.0[2].min(1.0).max(0.0)) as u8 }
 
-    //線形空間からガンマ空間への変換
+    //リニア空間からガンマ空間への変換
     pub fn gamma(&self , factor: f64) -> Self {
         let recip = factor.recip();
         Self::from_iter(self.0.iter().map(|x| x.powf(recip)))
@@ -202,7 +202,7 @@ impl Float3 {
         Self::from_iter(Self::random().0.iter().map(|x| min + x * (max - min)))
     }
 
-    //
+    //単位球の中の任意の天を生成
     pub fn random_in_unit_sphere() -> Self {
         loop {
             let point = Self::random_limit(-1.0, 1.0);
