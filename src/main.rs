@@ -1,6 +1,7 @@
 mod rayt;
 use crate::rayt::*;
 
+//Now Version 109
 //衝突したときの情報を格納する構造体
 struct HitInfo {
     t: f64, //光線のパラメータ

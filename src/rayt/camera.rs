@@ -3,6 +3,7 @@ use crate::rayt::*;
 
 /* カメラの実装*/
 #[derive(Debug)]
+/*カメラの */
 pub struct Camera {
     pub origin: Point3,
     pub u: Vec3,
